@@ -291,10 +291,22 @@ export class EmployeeStatisticsComponent implements OnInit, OnDestroy {
 		income: number,
 		profit: number
 	) => {
+		bonusType =
+			bonusType === null ? BonusTypeEnum.PROFIT_BASED_BONUS : bonusType;
 		switch (bonusType) {
 			case BonusTypeEnum.PROFIT_BASED_BONUS:
+				/* 
+				bonus percentage is displayed as 0 in UI when this.bonusPercentage is null
+				setting default bonusPercentage for corresponding bonusType before bonus calculation
+				*/
+				this.bonusPercentage = bonusPercentage = bonusPercentage
+					? bonusPercentage
+					: 75;
 				return (profit * bonusPercentage) / 100;
 			case BonusTypeEnum.REVENUE_BASED_BONUS:
+				this.bonusPercentage = bonusPercentage = bonusPercentage
+					? bonusPercentage
+					: 10;
 				return (income * bonusPercentage) / 100;
 			default:
 				return 0;

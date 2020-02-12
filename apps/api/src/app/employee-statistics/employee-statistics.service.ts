@@ -195,10 +195,14 @@ export class EmployeeStatisticsService {
 		income: number,
 		profit: number
 	) => {
+		bonusType =
+			bonusType === null ? BonusTypeEnum.PROFIT_BASED_BONUS : bonusType;
 		switch (bonusType) {
 			case BonusTypeEnum.PROFIT_BASED_BONUS:
+				bonusPercentage = bonusPercentage ? bonusPercentage : 75;
 				return (profit * bonusPercentage) / 100;
 			case BonusTypeEnum.REVENUE_BASED_BONUS:
+				bonusPercentage = bonusPercentage ? bonusPercentage : 10;
 				return (income * bonusPercentage) / 100;
 			default:
 				return 0;
