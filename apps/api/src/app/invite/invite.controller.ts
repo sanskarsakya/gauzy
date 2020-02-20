@@ -24,12 +24,14 @@ import { InviteAcceptUserCommand } from './commands/invite.accept-user.command';
 import { Invite } from './invite.entity';
 import { InviteService } from './invite.service';
 import { InviteResendCommand } from './commands/invite.resend.command';
+import { EmailService } from '../email';
 
 @ApiTags('Invite')
 @Controller()
 export class InviteController extends CrudController<Invite> {
 	constructor(
 		private readonly inviteService: InviteService,
+		private readonly emailService: EmailService,
 		private readonly commandBus: CommandBus
 	) {
 		super(inviteService);
@@ -50,7 +52,16 @@ export class InviteController extends CrudController<Invite> {
 	async createManyWithEmailsId(
 		@Body() entity: CreateEmailInvitesInput
 	): Promise<CreateEmailInvitesOutput> {
-		return this.inviteService.createBulk(entity);
+		const res =  await this.inviteService.createBulk(entity);
+
+		for (const email of entity.emailIds) {
+			console.error(email);
+			
+			await this.emailService.inviteUser(email, 'http://localhost:4200/#/pages/users');
+		}
+		
+
+		return res;
 	}
 
 	@ApiOperation({ summary: 'Get invite.' })

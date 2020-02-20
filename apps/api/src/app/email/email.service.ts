@@ -60,6 +60,49 @@ export class EmailService extends CrudService<IEmail> {
 
 	languageCode: string;
 
+	inviteUser(email: string, url: string, originUrl?: string) {
+		this.languageCode = 'en';
+
+		this.email
+			.send({
+				template: 'invite-user',
+				message: {
+					to: `${email}`,
+					subject: 'Invitation'
+				},
+				locals: {
+					locale: this.languageCode,
+					generatedUrl: url,
+					host: originUrl || environment.host
+				}
+			})
+			.then((res) => {
+				this.createEmailRecord(res.originalMessage, this.languageCode);
+			})
+			.catch(console.error);
+	}
+
+	inviteEmployee(user: User, url: string, originUrl?: string) {
+		this.languageCode = 'en';
+
+		this.email
+			.send({
+				template: 'invite-employee',
+				message: {
+					to: `${user.email}`
+				},
+				locals: {
+					locale: this.languageCode,
+					generatedUrl: url,
+					host: environment.host
+				}
+			})
+			.then((res) => {
+				this.createEmailRecord(res.originalMessage, this.languageCode);
+			})
+			.catch(console.error);
+	}
+
 	welcomeUser(user: User, originUrl?: string) {
 		this.languageCode = 'en';
 
