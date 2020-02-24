@@ -18,6 +18,7 @@ import * as nodemailer from 'nodemailer';
 import { OrganizationClients } from '../organization-clients';
 import { OrganizationDepartment } from '../organization-department';
 import { Organization } from '../organization';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class InviteService extends CrudService<Invite> {
@@ -38,7 +39,8 @@ export class InviteService extends CrudService<Invite> {
 			OrganizationDepartment
 		>,
 		@InjectRepository(Organization)
-		private readonly organizationRepository: Repository<Organization>
+		private readonly organizationRepository: Repository<Organization>,
+		private emailService: EmailService
 	) {
 		super(inviteRepository);
 	}
@@ -150,9 +152,14 @@ export class InviteService extends CrudService<Invite> {
 		}
 
 		const items = await this.repository.save(invites);
-		items.forEach((item) =>
-			this.sendInvitationMail(item.email, item.token)
-		);
+		items.forEach((item) => {
+			this.sendInvitationMail(item.email, item.token);
+			this.emailService.inviteUser(
+				item.email,
+				item.roleId,
+				item.organizationId
+			);
+		});
 		return { items, total: items.length, ignored: existingInvites.length };
 	}
 

@@ -28,6 +28,7 @@ export class EmailService extends CrudService<IEmail> {
 		transport: {
 			jsonTransport: true
 		},
+		send: true,
 		i18n: {},
 		views: {
 			options: {
@@ -60,12 +61,66 @@ export class EmailService extends CrudService<IEmail> {
 
 	languageCode: string;
 
+	inviteUser(email: string, role, organization, originUrl?: string) {
+		this.languageCode = 'en';
+
+		this.email
+			.send({
+				template:
+					'../core/seeds/data/default-email-templates/invite-user',
+				message: {
+					to: `${email}`
+				},
+				locals: {
+					locale: this.languageCode,
+					role: role,
+					organization: organization,
+					host: originUrl || environment.host
+				}
+			})
+			.then((res) => {
+				this.createEmailRecord(res.originalMessage, this.languageCode);
+			})
+			.catch(console.error);
+	}
+
+	inviteEmployee(
+		email: string,
+		project?,
+		client?,
+		department?,
+		originUrl?: string
+	) {
+		this.languageCode = 'en';
+
+		this.email
+			.send({
+				template:
+					'../core/seeds/data/default-email-templates/invite-employee',
+				message: {
+					to: `${email}`
+				},
+				locals: {
+					locale: this.languageCode,
+					role: project,
+					organization: client,
+					department: department,
+					host: originUrl || environment.host
+				}
+			})
+			.then((res) => {
+				this.createEmailRecord(res.originalMessage, this.languageCode);
+			})
+			.catch(console.error);
+	}
+
 	welcomeUser(user: User, originUrl?: string) {
 		this.languageCode = 'en';
 
 		this.email
 			.send({
-				template: 'welcome-user',
+				template:
+					'../core/seeds/data/default-email-templates/welcome-user',
 				message: {
 					to: `${user.email}`
 				},
@@ -86,7 +141,7 @@ export class EmailService extends CrudService<IEmail> {
 
 		this.email
 			.send({
-				template: 'password',
+				template: '../core/seeds/data/default-email-templates/password',
 				message: {
 					to: `${user.email}`,
 					subject: 'Forgotten Password'
